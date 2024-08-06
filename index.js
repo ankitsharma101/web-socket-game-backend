@@ -9,12 +9,9 @@ app.use(cors());
 app.use(bodyParser.json());
 var http = require("http");
 
-app.get("/", (req, res) => res.sendFile(__dirname + "/index.html"));
-
-app.listen(9091, () => console.log("Listening on http port 9091"));
 const websocketServer = require("websocket").server;
 const httpServer = http.createServer();
-httpServer.listen(9090, () => console.log("Listening.. on 9090"));
+httpServer.listen(PORT, () => console.log(`Listening.. on ${PORT}`));
 //hashmap clients
 const clients = {};
 const games = {};
@@ -142,8 +139,4 @@ const guid = () =>
 
 app.get("/api/data", (req, res) => {
   res.json({ message: "Hello from the backend!" });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
 });
