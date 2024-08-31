@@ -11,7 +11,7 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   function(req, res) {
     // Successful authentication, redirect home.
-    res.redirect(FRONTEND_URL); // Assuming your React app runs on port 3000
+    res.redirect(FRONTEND_URL); // Assuming your React app runs on port 
   }
 );
 
