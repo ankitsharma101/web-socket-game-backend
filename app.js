@@ -14,10 +14,11 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
     credentials: true,
   })
 );
+
 app.use(bodyParser.json());
 var http = require("http");
 
@@ -37,7 +38,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: false, // Set to true if you're using HTTPS
+      secure: process.env.NODE_ENV === 'production', // Use true for HTTPS in production
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     },
@@ -54,8 +55,8 @@ app.get("/", (req, res) => {
   res.send("Home Page");
 });
 
-app.listen(5000, () => {
-  console.log(`Server started on ${process.env.BACKEND_URL || 'http://localhost:5000'}`);
+app.listen(PORT, () => {
+  console.log(`Server started on http://localhost:${PORT}`);
 });
 
 const websocketServer = require("websocket").server;
