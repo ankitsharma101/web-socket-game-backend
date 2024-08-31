@@ -2,6 +2,7 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 router.get('/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })

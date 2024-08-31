@@ -7,7 +7,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.BACKEND_URL + "/auth/google/callback",
+      callbackURL: (process.env.BACKEND_URL || "http://localhost:5000") + "/auth/google/callback",
     },
     async function (token, tokenSecret, profile, done) {
       // Check if user exists in DB, otherwise create a new user
