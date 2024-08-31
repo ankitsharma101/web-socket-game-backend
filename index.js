@@ -5,7 +5,10 @@ const bodyParser = require("body-parser");
 const app = express();
 const PORT = process.env.BACKEND_URL || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://web-socket-game-frontend.vercel.app',  // Your frontend URL from Vercel
+  credentials: true
+}));
 app.use(bodyParser.json());
 var http = require("http");
 
