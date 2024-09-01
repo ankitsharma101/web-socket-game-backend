@@ -14,7 +14,7 @@ router.get(
   passport.authenticate("google", { failureRedirect: "/" }),
   function (req, res) {
     // Successful authentication, redirect home.
-    res.redirect(FRONTEND_URL); // Redirect to the React frontend
+    res.redirect(`${FRONTEND_URL}`); // Redirect to the React frontend
   }
 );
 
