@@ -12,9 +12,13 @@ const authRoutes = require("./auth");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000'; // Local fallback
+
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: FRONTEND_URL || "http://localhost:3000",
     credentials: true,
   })
 );
