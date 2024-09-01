@@ -16,7 +16,7 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
-  function (req, res) {
+  (req, res) => {
     // Successful authentication, redirect to the React frontend
     res.redirect(FRONTEND_URL);
   }

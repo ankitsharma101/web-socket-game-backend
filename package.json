@@ -6,5 +6,11 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "websocket": "^1.0.35"
-  }
+  },
+    "rewrites": [
+      {
+        "source": "/auth/(.*)",
+        "destination": "/api/auth/$1"
+      }
+    ]
 }
