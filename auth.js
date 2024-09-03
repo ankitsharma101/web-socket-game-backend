@@ -13,7 +13,7 @@ router.get(
 
 // Route 2: Handle the callback after Google has authenticated the user
 router.get(
-  "/auth/google/callback",
+  "/google/callback", // Corrected callback route
   passport.authenticate("google", { failureRedirect: "/" }),
   function (req, res) {
     res.redirect(FRONTEND_URL); // Redirect to the React frontend
@@ -21,7 +21,7 @@ router.get(
 );
 
 // Route 3: Logout the user
-router.get("/auth/logout", (req, res) => {
+router.get("/logout", (req, res) => {
   req.logout(function (err) {
     if (err) {
       return next(err);
@@ -32,7 +32,7 @@ router.get("/auth/logout", (req, res) => {
 });
 
 // Route 4: Check the currently authenticated user
-router.get("/auth/current_user", (req, res) => {
+router.get("/current_user", (req, res) => {
   // Send user data if logged in, otherwise send an empty object
   res.send(req.user || {});
 });
