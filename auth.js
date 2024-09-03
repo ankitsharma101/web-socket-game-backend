@@ -3,8 +3,7 @@ const passport = require("passport");
 const router = express.Router();
 
 // Use environment variables for frontend and backend URLs
-const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL || "http://localhost:3000";
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL; // Make sure this is set correctly
 
 // Route 1: Start Google Authentication
 router.get(
@@ -16,9 +15,8 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
-  (req, res) => {
-    // Successful authentication, redirect to the React frontend
-    res.redirect(FRONTEND_URL);
+  function (req, res) {
+    res.redirect(FRONTEND_URL); // Redirect to the React frontend
   }
 );
 
