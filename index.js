@@ -12,8 +12,13 @@ const authRoutes = require("./auth");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
-const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL || "http://localhost:3000"; // Local fallback
+const BACKEND_URL =
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+const FRONTEND_URL =
+  process.env.REACT_APP_FRONTEND_URL || "http://localhost:3000"; // Local fallback
+
+//Routes
+app.use("/auth", authRoutes);
 
 // Connect to MongoDB
 mongoose
@@ -48,8 +53,13 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+//Add this middleware to log incoming requests
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
+
 // Routes
-app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("Home Page");
