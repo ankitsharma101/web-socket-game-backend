@@ -5,7 +5,7 @@ const User = require('./user');
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${process.env.BACKEND_URL}/auth/google/callback`
+    callbackURL: `${process.env.REACT_APP_BACKEND_URL}/auth/google/callback`
   },
   async function(token, tokenSecret, profile, done) {
     // Check if user exists in DB, otherwise create a new user
