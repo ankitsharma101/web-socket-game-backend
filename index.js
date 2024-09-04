@@ -1,5 +1,5 @@
 require("dotenv").config();
-require("./passport-config");
+require("./passport-config"); // Ensure your passport configuration is correct
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -12,13 +12,8 @@ const authRoutes = require("./auth");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const BACKEND_URL =
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
-const FRONTEND_URL =
-  process.env.REACT_APP_FRONTEND_URL || "http://localhost:3000"; // Local fallback
-
-//Routes
-app.use("/auth", authRoutes);
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL || "http://localhost:3000"; // Local fallback
 
 // Connect to MongoDB
 mongoose
@@ -27,9 +22,9 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-// Middleware
+// Middleware - Place it before routes
 app.use(
   cors({
     origin: FRONTEND_URL,
@@ -53,13 +48,14 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-//Add this middleware to log incoming requests
+// Add this middleware to log incoming requests
 app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.url}`);
   next();
 });
 
 // Routes
+app.use("/auth", authRoutes);  // Auth routes after middleware
 
 app.get("/", (req, res) => {
   res.send("Home Page");
@@ -82,65 +78,17 @@ const games = {};
 // WebSocket Logic
 wsServer.on("request", (request) => {
   const connection = request.accept(null, request.origin);
-  connection.on("open", () => console.log("opened!"));
-  connection.on("close", () => console.log("closed!"));
+  
+  // Log connection opened and closed
+  connection.on("open", () => console.log("WebSocket connection opened!"));
+  connection.on("close", () => console.log("WebSocket connection closed!"));
+
   connection.on("message", (message) => {
-    const result = JSON.parse(message.utf8Data);
-
-    // Create a new game
-    if (result.method === "create") {
-      const clientId = result.clientId;
-      const gameId = guid();
-      games[gameId] = {
-        id: gameId,
-        balls: 20,
-        clients: [],
-      };
-
-      const payLoad = {
-        method: "create",
-        game: games[gameId],
-      };
-
-      const con = clients[clientId].connection;
-      con.send(JSON.stringify(payLoad));
-    }
-
-    // Join an existing game
-    if (result.method === "join") {
-      const clientId = result.clientId;
-      const gameId = result.gameId;
-      const game = games[gameId];
-      if (game.clients.length >= 3) {
-        return; // Maximum players reached
-      }
-      const color = { 0: "Red", 1: "Green", 2: "Blue" }[game.clients.length];
-      game.clients.push({
-        clientId: clientId,
-        color: color,
-      });
-
-      if (game.clients.length === 3) updateGameState();
-
-      const payLoad = {
-        method: "join",
-        game: game,
-      };
-      game.clients.forEach((c) => {
-        clients[c.clientId].connection.send(JSON.stringify(payLoad));
-      });
-    }
-
-    // Play a move
-    if (result.method === "play") {
-      const gameId = result.gameId;
-      const ballId = result.ballId;
-      const color = result.color;
-      let state = games[gameId].state;
-      if (!state) state = {};
-
-      state[ballId] = color;
-      games[gameId].state = state;
+    try {
+      const result = JSON.parse(message.utf8Data);
+      handleWebSocketMessage(result, connection);
+    } catch (error) {
+      console.error("Invalid WebSocket message received:", error);
     }
   });
 
@@ -155,6 +103,66 @@ wsServer.on("request", (request) => {
   connection.send(JSON.stringify(payLoad));
 });
 
+// WebSocket message handling function
+function handleWebSocketMessage(result, connection) {
+  // Create a new game
+  if (result.method === "create") {
+    const clientId = result.clientId;
+    const gameId = guid();
+    games[gameId] = {
+      id: gameId,
+      balls: 20,
+      clients: [],
+    };
+
+    const payLoad = {
+      method: "create",
+      game: games[gameId],
+    };
+
+    const con = clients[clientId].connection;
+    con.send(JSON.stringify(payLoad));
+  }
+
+  // Join an existing game
+  if (result.method === "join") {
+    const clientId = result.clientId;
+    const gameId = result.gameId;
+    const game = games[gameId];
+    if (game.clients.length >= 3) {
+      return; // Maximum players reached
+    }
+    const color = { 0: "Red", 1: "Green", 2: "Blue" }[game.clients.length];
+    game.clients.push({
+      clientId: clientId,
+      color: color,
+    });
+
+    if (game.clients.length === 3) updateGameState();
+
+    const payLoad = {
+      method: "join",
+      game: game,
+    };
+    game.clients.forEach((c) => {
+      clients[c.clientId].connection.send(JSON.stringify(payLoad));
+    });
+  }
+
+  // Play a move
+  if (result.method === "play") {
+    const gameId = result.gameId;
+    const ballId = result.ballId;
+    const color = result.color;
+    let state = games[gameId].state;
+    if (!state) state = {};
+
+    state[ballId] = color;
+    games[gameId].state = state;
+  }
+}
+
+// Update the game state at regular intervals
 function updateGameState() {
   for (const g of Object.keys(games)) {
     const game = games[g];
@@ -171,6 +179,7 @@ function updateGameState() {
   setTimeout(updateGameState, 500);
 }
 
+// Helper functions for generating unique IDs
 function S4() {
   return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
 }
@@ -193,5 +202,5 @@ const guid = () =>
 
 // Start server
 server.listen(PORT, () => {
-  console.log(`Server started on http://localhost:${PORT}`);
+  console.log(`Server started on ${BACKEND_URL}`);
 });
