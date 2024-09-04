@@ -13,11 +13,11 @@ router.get(
 
 // Route 2: Handle the callback after Google has authenticated the user
 router.get(
-  "/google/callback", // Corrected callback route
-  passport.authenticate("google", { failureRedirect: "/" }),
-  function (req, res) {
-    res.redirect(FRONTEND_URL); // Redirect to the React frontend
-  }
+  '/google/callback',
+  passport.authenticate('google', {
+    successRedirect: '/',
+    failureRedirect: '/login',
+  })
 );
 
 // Route 3: Logout the user
